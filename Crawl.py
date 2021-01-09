@@ -10,7 +10,7 @@ import urllib3
 
 class Bond:
 
-    def Bond_server(target):
+    def Bond_server(self,target):
         group = ['table-bond','table-bond right']
         url = requests.get(target)
         soup = BeautifulSoup(url.content,"html.parser")
@@ -34,34 +34,32 @@ class Bond:
                     print('')
 
 
-    def Chcek_Server(server):
+    def Check_Server(self,server):
         url = 'https://archeage.xlgames.com/play/worldinfo/'
         if(server == '다후타'):
             target = url + 'DAHUTA'
-            Bond.Bond_server(target)
+            Bond().Bond_server(target)
 
         elif(server == '누이'):
             target = url + 'NUI'
             print(target)
-            Bond.Bond_server(target)
+            Bond().Bond_server(target)
 
         elif(server == '하제'):
             target = url + 'HAJE'
-            Bond.Bond_server(target)
+            Bond().Bond_server(target)
 
         elif(server == '정원'):
             target = url + 'GARDEN'
-            Bond.Bond_server(target)
+            Bond().Bond_server(target)
 
         elif(server == '정원2'):
             target = url + 'GARDEN2'
-            Bond.Bond_server(target)
+            Bond().Bond_server(target)
 
         elif(server == '모르페우스'):
             target = url + 'MORPHEUS'
-            Bond.Bond_server(target)      
+            Bond().Bond_server(target)      
 
         else:
             print('error')
-
-Bond.Chcek_Server('누이')
