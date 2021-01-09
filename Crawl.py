@@ -6,13 +6,14 @@ import urllib3
 # # print(trs[4].find('li'))
 # rank = trs[1].find('li',class_='point')
 # print(rank)
-group = ['table-bond','table-bond right']
-def Crwaling(server):
-    target = 'https://archeage.xlgames.com/play/worldinfo/DAHUTA'
-    url = requests.get(target)
-    soup = BeautifulSoup(url.content,"html.parser")
 
-    if(server == '다후타'):
+
+class Bond:
+
+    def Bond_server(target):
+        group = ['table-bond','table-bond right']
+        url = requests.get(target)
+        soup = BeautifulSoup(url.content,"html.parser")
         for i in group:
             if(i == 'table-bond'):
                 print('서대륙')
@@ -32,7 +33,35 @@ def Crwaling(server):
                 except:
                     print('')
 
-    else:
-        print('error')
 
-Crwaling('다후타')
+    def Chcek_Server(server):
+        url = 'https://archeage.xlgames.com/play/worldinfo/'
+        if(server == '다후타'):
+            target = url + 'DAHUTA'
+            Bond.Bond_server(target)
+
+        elif(server == '누이'):
+            target = url + 'NUI'
+            print(target)
+            Bond.Bond_server(target)
+
+        elif(server == '하제'):
+            target = url + 'HAJE'
+            Bond.Bond_server(target)
+
+        elif(server == '정원'):
+            target = url + 'GARDEN'
+            Bond.Bond_server(target)
+
+        elif(server == '정원2'):
+            target = url + 'GARDEN2'
+            Bond.Bond_server(target)
+
+        elif(server == '모르페우스'):
+            target = url + 'MORPHEUS'
+            Bond.Bond_server(target)      
+
+        else:
+            print('error')
+
+Bond.Chcek_Server('누이')
