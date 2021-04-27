@@ -3,9 +3,14 @@ import discord
 import asyncio
 
 client = discord.Client()
-token = '?'
-#token = '?'
 
+
+
+def log_write(author, command):
+    f = open('./log.txt','a')
+    data = f"{author}님이 {command} 명령어를 사용하였습니다"
+    f.write(data)
+    f.close()
 
 @client.event
 async def on_ready():
@@ -14,6 +19,7 @@ async def on_ready():
     print('봇 고유 넘버 :',client.user.id)
     print('------')
 
+
 @client.event
 async def on_message(message):
     channel = message.channel
@@ -21,36 +27,43 @@ async def on_message(message):
     if message.content == '=test':
         await channel.send('test~!')
         print(f"{message.author}님이 test 명령어를 사용하였습니다")
+        log_write(message.author,'=test')
     
     if message.content == '=채권 누이':
         abc = Bond().Check_Server('누이')
         await channel.send(abc)
         print(f"{message.author}님이 =채권 누이 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 누이')
 
     if message.content == '=채권 다후타':
         abc = Bond().Check_Server('다후타')
         await channel.send(abc)
         print(f"{message.author}님이 =채권 다후타 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 다후타')
 
     if message.content == '=채권 모르페우스':
         abc = Bond().Check_Server('모르페우스')
         await channel.send(abc)
         print(f"{message.author}님이 =채권 모르페우스 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 모르페우스')
 
     if message.content == '=채권 정원':
         abc = Bond().Check_Server('정원')
         await channel.send(abc)
         print(f"{message.author}님이 =채권 정원 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 정원')
 
     if message.content == '=채권 정원2':
         abc = Bond().Check_Server('정원2')
         await channel.send(abc)
         print(f"{message.author}님이 =채권 정원2 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 정원2')
 
     if message.content == '=채권 하제':
         abc = Bond().Check_Server('하제')
         await channel.send(abc)
         print(f"{str(message.author)}님이 =채권 하제 명령어를 사용하였습니다")
+        log_write(message.author, '=채권 하제')
 
     if message.content.startswith('=청소'):
         number = int(message.content.split(" ")[1])
@@ -58,10 +71,11 @@ async def on_message(message):
         await message.channel.purge(limit=number)
         await message.channel.send(f"{number}개의 메세지 삭제 완료!")
         print(f"{message.author}님이 =청소 명령어를 사용하였습니다")
+        log_write(message.author, '=청소')
 
     if message.content.startswith('=정리'):
         print(f"{message.author}님이 =정리 명령어를 사용하였습니다")
-        try:
+        log_write(message.author, '=정리')
             number = int(message.content.split(" ")[1])
             user_name = str(message.author)[:-5]
             user = message.author
