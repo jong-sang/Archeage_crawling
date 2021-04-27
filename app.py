@@ -3,7 +3,8 @@ import discord
 import asyncio
 
 client = discord.Client()
-
+#token = 'Njc3NTY0ODA0OTgyMTEyMjU3.XkWFZg.pJ8lwxIzB_wLJvNrXM1ph2pNEqc'
+token = 'ODE4NjQ1NzYwMDE0NDE3OTMw.YEbFRg.zCzoz5Asr5ALlfMBwjJr_M2IlDg'
 
 
 def log_write(author, command):
@@ -76,6 +77,7 @@ async def on_message(message):
     if message.content.startswith('=정리'):
         print(f"{message.author}님이 =정리 명령어를 사용하였습니다")
         log_write(message.author, '=정리')
+        try:
             number = int(message.content.split(" ")[1])
             user_name = str(message.author)[:-5]
             user = message.author
