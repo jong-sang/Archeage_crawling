@@ -107,7 +107,7 @@ class Bond:
             result = Bond().Bond_server(target)
             return result
 
-        elif(server == '몰페'):
+        elif(server == '모르페우스'):
             target = url + 'MORPHEUS'
             result = Bond().Bond_server(target)
             return result     

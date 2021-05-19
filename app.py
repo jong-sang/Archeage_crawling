@@ -1,138 +1,131 @@
-from Crawl import Bond
 import discord
-import asyncio
+from discord.ext import commands, tasks
+from Crawl import Bond
+from datetime import datetime
+from pytz import timezone
+import aiocron
 
-client = discord.Client()
-<<<<<<< HEAD
+bot = commands.Bot(command_prefix='=')
 
-=======
->>>>>>> 8b1ede78d9e2840849dec8b940cf9b17113c3cb6
 
+def test(ti,des):
+    embed=discord.Embed(title=ti, description=des, color=0x00aaaa)
+    return embed
+
+def timeprint():
+    a = datetime.now(timezone('Asia/Seoul')).strftime('%Y-%m-%d %H:%M:%S')
+    return a
 
 def log_write(author, command):
     f = open('./log.txt','a')
-    data = f"{author}님이 {command} 명령어를 사용하였습니다\n"
+    data = f"KST : {timeprint()} // {author} 님이 =\"{command}\" 명령어를 사용하였습니다\n"
     f.write(data)
     f.close()
 
-@client.event
+
+#-------------------------------------------------------------------------
+#앱 재시작시 봇의 ID와 이름 그리고 코멘트를 설정
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print('봇 이름 : ',client.user.name)
-    print('봇 고유 넘버 :',client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
     print('------')
+    # 'comment'라는 게임 중으로 설정합니다.
+    game = discord.Game("갓겜 아키에이지")
+    await bot.change_presence(status=discord.Status.online, activity=game)
+    print("READY")
 
+#-------------------------------------------------------------------------
+#명령어를 봇이 보낸 경우 반응하지 않음
 
-@client.event
+@bot.event
 async def on_message(message):
-    channel = message.channel
+    if message.author.bot:
+        return None
+    await bot.process_commands(message)
 
-    if message.content == '=test':
-        await channel.send('test~!')
-        print(f"{message.author}님이 test 명령어를 사용하였습니다")
-        log_write(message.author,'=test')
-    
-    if message.content == '=채권 누이':
-        abc = Bond().Check_Server('누이')
-        await channel.send(abc)
-        print(f"{message.author}님이 =채권 누이 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 누이')
+#-------------------------------------------------------------------------
+#스케쥴러로 매 자정 12시5분에 채권 내용을 메세지로 전송
 
-    if message.content == '=채권 다후타':
-        abc = Bond().Check_Server('다후타')
-        await channel.send(abc)
-        print(f"{message.author}님이 =채권 다후타 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 다후타')
+# send_time='10:48' #time is in 24hr format
+# message_channel_id=797984230377259012 #channel ID to send images to
 
-    if message.content == '=채권 모르페우스':
-        abc = Bond().Check_Server('모르페우스')
-        await channel.send(abc)
-        print(f"{message.author}님이 =채권 모르페우스 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 모르페우스')
+# @bot.event
+# async def time_check():
+#     await bot.wait_until_ready()
+#     message_channel=bot.get_channel(message_channel_id)
+#     while not bot.is_closed:
+#         now=datetime.strftime(datetime.now(timezone('Asia/Seoul')),'%H:%M')
+#         if now.hour() == 10 and now.minute() == 52:
+#             message= '타이머응애'
+#             await message_channel.send(message)
 
-    if message.content == '=채권 정원':
-        abc = Bond().Check_Server('정원')
-        await channel.send(abc)
-        print(f"{message.author}님이 =채권 정원 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 정원')
 
-    if message.content == '=채권 정원2':
-        a아니 bc = Bond().Check_Server('정원2')
-        await channel.send(abc)
-        print(f"{message.author}님이 =채권 정원2 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 정원2')
+# bot.loop.create_task(time_check())
 
-    if message.content == '=채권 하제':
-        abc = Bond().Check_Server('하제')
-        await channel.send(abc)
-        print(f"{str(message.author)}님이 =채권 하제 명령어를 사용하였습니다")
-        log_write(message.author, '=채권 하제')
+@aiocron.crontab('2 0 * * *')
+async def cornjob1():
+    server='다후타'
+    aaa = Bond().Check_Server(server)
+    channel = bot.get_channel(797984230377259012)
+    test_Embed = test(server,aaa)
+    await channel.send(embed=test_Embed)
 
-    if message.content.startswith('=청소'):
-        number = int(message.content.split(" ")[1])
-        await message.delete()
-        await message.channel.purge(limit=number)
-        await message.channel.send(f"{number}개의 메세지 삭제 완료!")
-        print(f"{message.author}님이 =청소 명령어를 사용하였습니다")
-        log_write(message.author, '=청소')
+@aiocron.crontab('2 0 * * *')
+async def cornjob2():
+    server='모르페우스'
+    aaa = Bond().Check_Server(server)
+    channel = bot.get_channel(502821365934587907)
+    test_Embed = test(server,aaa)
+    await channel.send(embed=test_Embed)
 
-    if message.content.startswith('=정리'):
-        print(f"{message.author}님이 =정리 명령어를 사용하였습니다")
-        log_write(message.author, '=정리')
-        try:
-            number = int(message.content.split(" ")[1])
-            user_name = str(message.author)[:-5]
-            user = message.author
+#-------------------------------------------------------------------------
+#채권 커맨드 부분
 
-            # user = 메세지를 보낸 사람
-            #
-            delete_counter = 0
-            counter = 0
-            print('number : ', number)
-            # print('mention_id : ',mention_id)
-            print('user_name : ', user_name)
-            print('user : ', user)
-            print(message.content)
-            # print('mention_id_type : ',type(mention_id))
-            await message.delete()
-            if user != client.user.id:
-                if 0 < number and number < 100:
-                    msg = await channel.history(limit=number).flatten()
-                    async for i in channel.history(limit=number):
-                        if i.author == user:
-                            await i.delete()
-                            delete_counter += 1
-                        counter += 1
-                    await channel.send(f"```{counter}개의 메세지 중 {user_name}님의 메세지 {delete_counter}만큼 삭제했습니다```")
-                    print('count : ',counter)
-                else:
-                    await channel.send('```1 ~ 99사이 숫자만 가능합니다```')
-            else:
-                await channel.send('```봇은 안된다 이놈아```')
+@bot.command(name='누이')
+async def NUI(ctx):
+    server = '누이'
+    abc = Bond().Check_Server(server)
+    log_write(ctx.author, server)
+    test_Embed = test(server,abc)
+    log_write('크론탭','=다후타')
+    await ctx.channel.send(embed=test_Embed)
 
-        except IndexError as error:
-            await channel.send('```=정리 {숫자} 이렇게 사용해주세요!```')
+@bot.command(name='다후타')
+async def DAHUTA(ctx):
+    server = '다후타'
+    abc = Bond().Check_Server(server)
+    log_write(ctx.author, server)
+    test_Embed = test(server,abc)
+    await ctx.channel.send(embed=test_Embed)
+
+@bot.command(name='몰페')
+async def MORPHEUS(ctx):
+    server = '모르페우스'
+    abc = Bond().Check_Server(server)
+    log_write(ctx.author, server)
+    test_Embed = test(server,abc)
+    await ctx.channel.send(embed=test_Embed)
+
+@bot.command(name='하제')
+async def HAJE(ctx):
+    server = '하제'
+    abc = Bond().Check_Server(server)
+    log_write(ctx.author, server)
+    test_Embed = test(server,abc)
+    await ctx.channel.send(embed=test_Embed)
+
+@bot.command(name='랑그')
+async def RANGORA(ctx):
+    server = '랑그'
+    abc = Bond().Check_Server(server)
+    log_write(ctx.author, server)
+    test_Embed = test(server,abc)
+    await ctx.channel.send(embed=test_Embed)
+
+#-------------------------------------------------------------------------
 
 
 
-# async def clear(ctx, number):
-#     number = int(number) #Converting the amount of messages to delete to an integer
-#     counter = 0
-#     async for x in Client.logs_from(ctx.message.channel, limit = number):
-#         if counter < number:
-#             await Client.delete_message(x)
-#             counter += 1
-#             await asyncio.sleep(1.2) #1.2 second timer so the deleting process can be even
-
-
-
-
-
-    
-    
-
-
-
-client.run(token)
-
-# Bond().Check_Server('누이')
+bot.run(token)
