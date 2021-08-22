@@ -6,7 +6,8 @@ from pytz import timezone
 import aiocron
 
 bot = commands.Bot(command_prefix='=')
-
+f = open('./token.txt','r')
+token = f.readline()
 
 def test(ti,des):
     embed=discord.Embed(title=ti, description=des, color=0x00aaaa)
