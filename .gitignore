@@ -1,1 +1,5 @@
-token.txt
+token.ini
+test.py
+channelData.json
+__pycache__
+log.txt
