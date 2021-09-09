@@ -91,7 +91,6 @@ async def NUI(ctx):
     abc = Bond().Check_Server(server)
     log_write(ctx.author, server)
     test_Embed = sendEmbed(server,abc)
-    log_write('크론탭','=다후타')
     await ctx.channel.send(embed=test_Embed)
 
 @bot.command(name='다후타')
