@@ -42,7 +42,7 @@ with open('channelData.json') as json_file:
 
 
 bot = commands.Bot(command_prefix='=')
-token = readToken('test')
+token = readToken('server')
 client = discord.Client()
 
 user = [] # 유저가 입력한 노래 정보
@@ -208,7 +208,7 @@ async def join(ctx):
         vc = await ctx.message.author.voice.channel.connect()
     except:
         try:
-            await vs.move_to(ctx.message.author.voice.channel)
+            await vc.move_to(ctx.message.author.voice.channel)
         except:
             await ctx.send("채널에 유저가 없습니다")
 
@@ -226,7 +226,7 @@ async def urlPlay(ctx, *, url):
         vc = await ctx.message.author.voice.channel.connect()
     except:
         try:
-            await vs.move_to(ctx.message.author.voice.channel)
+            await vc.move_to(ctx.message.author.voice.channel)
         except:
             await ctx.send("채널에 유저가 없습니다")
 
@@ -249,7 +249,7 @@ async def musicPlay(ctx, *, msg):
         vc = await ctx.message.author.voice.channel.connect()
     except:
         try:
-            await vs.move_to(ctx.message.author.voice.channel)
+            await vc.move_to(ctx.message.author.voice.channel)
         except:
             await ctx.send("채널에 유저가 없습니다")
 
