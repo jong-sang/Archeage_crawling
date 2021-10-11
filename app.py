@@ -1,5 +1,6 @@
 #-*-coding:utf-8-*-
 import discord
+from discord import embeds
 from discord.ext import commands
 from selenium.webdriver.chrome import options
 from Crawl import Bond
@@ -14,6 +15,7 @@ import bs4
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from discord.utils import get
+
 
 
 def readToken(name):
@@ -50,11 +52,13 @@ musictitle = [] # 가공된 정보의 노래 제목
 song_queue = [] # 가공된 정보의 노래 링크
 musicnow = [] # 현재 출력되는 노래 배열
 
+YDL_OPTIONS= {'format':'bestaudio','noplaylist':'True'}
+FFMPEG_OPTIONS = {'before_options':'-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'}
+
+#-------------------------------------------------------------------------
+# 필요한 함수 정의
 def title(msg):
     global music
-
-    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 
     options = webdriver.ChromeOptions()
     options.add_argument("headless")
@@ -82,8 +86,6 @@ def title(msg):
 
 def play(ctx):
     global vc
-    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     URL = song_queue[0]
     del user[0]
     del musictitle[0]
@@ -96,8 +98,7 @@ def play_next(ctx):
     if len(musicnow) - len(user) >= 2:
         for i in range(len(musicnow) - len(user) - 1):
             del musicnow[0]
-    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+   
     if len(user) >= 1:
         if not vc.is_playing():
             del musicnow[0]
@@ -120,7 +121,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     # 'comment'라는 게임 중으로 설정합니다.
-    game = discord.Game("문제 발생시 jongsangkuun#8830으로 DM해주세요!")
+    game = discord.Game("문제 발생시 jongsangkuun#8830으로 DM해주세요!\n 명령어 조회 -> =cmd")
     await bot.change_presence(status=discord.Status.online, activity=game)
     print("READY")
 
@@ -133,28 +134,48 @@ async def on_message(message):
         return None
     await bot.process_commands(message)
 
+
+#-------------------------------------------------------------------------
+# 명령어 모음
+@bot.command(name='cmd')
+async def command(ctx):
+    await ctx.send(embed = discord.Embed(title='도움말',description="""
+\n=cmd -> 사용 가능한 명령어를 보여줍니다.
+\n=누이 -> 누이 서버의 채권 지역을 조회합니다.
+\n=다후타 -> 다후타 서버의 채권 지역을 조회합니다.
+\n=하제 -> 하제 서버의 채권 지역을 조회합니다.
+\n=랑그 -> 랑그레이 서버의 채권 지역을 조회합니다.
+\n=몰페 -> 모르페우스 서버의 채권 지역을 조회합니다.
+\n=join -> 봇이 채널에 들어옵니다.
+\n=out -> 봇이 채널에서 나갑니다.
+\n=play [노래제목] -> 노래제목을 재생합니다. 노래가 재생 중이면 자동으로 다음 곡으로 등록됩니다.
+\n=add [노래제목] -> 다음 재생할 곡을 등록합니다.
+\n=url [노래링크] -> 유튜브URL를 입력하면 뮤직봇이 노래를 틀어줍니다.
+\n=melon -> 유튜브에 최신 멜론 순위를 검색해서 틀어줍니다
+(url과 melon은 목록재생에서는 사용할 수 없습니다.)
+\n=now -> 지금 재생 중인 곡을 보여줍니다.
+\n=list -> 다음 재생 리스트를 보여줍니다.
+\n=skip -> 지금 재생중인 노래를 스킵합니다.
+\n=stop -> 지금 재생중인 노래를 일시정지합니다.
+\n=start -> 일시정지중인 노래를 다시 재생시킵니다.
+\n=del [노래 번호] -> list로 조회한 노래의 번호에 맞는 곡을 리스트에서 삭제합니다.
+\n=clearlist -> 노래 재생 리스트를 모두 삭제합니다.""", color = 0x00ff00))
+
+
+
 #-------------------------------------------------------------------------
 #채권 크론탭 부분
 
 @aiocron.crontab('2 0 * * *')
 async def cornDahuta():
     server='다후타'
-    channelNum = int(channelData[server]["cocodor"])
+    channelNum = int(channelData[server]["그냥디코"])
     aaa = Bond().Check_Server(server)
     channel = bot.get_channel(channelNum)
     test_Embed = sendEmbed(server,aaa)
     log_write("corntab", server)
     await channel.send(embed=test_Embed)
 
-@aiocron.crontab('2 0 * * *')
-async def cronMorpheus():
-    server='모르페우스'
-    channelNum = int(channelData[server]["sesame"])
-    aaa = Bond().Check_Server(server)
-    channel = bot.get_channel(channelNum)
-    test_Embed = sendEmbed(server,aaa)
-    log_write("corntab", server)
-    await channel.send(embed=test_Embed)
 
 #-------------------------------------------------------------------------
 #채권 커맨드 부분
@@ -221,6 +242,7 @@ async def out(ctx):
 
 @bot.command(name='url')
 async def urlPlay(ctx, *, url):
+    print('url : ',url)
     try:
         global vc
         vc = await ctx.message.author.voice.channel.connect()
@@ -230,14 +252,13 @@ async def urlPlay(ctx, *, url):
         except:
             await ctx.send("채널에 유저가 없습니다")
 
-    YDL_OPTIONS= {'format':'bestaudio','noplaylist':'True'}
-    FFMPEG_OPTIONS = {'before_options':'-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'}
-
+    
     if not vc.is_playing():
         with YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(url, download=False)
         URL = info['formats'][0]['url']
-        vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+
+        vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: play_next(ctx))
         await ctx.send(embed = discord.Embed(title= "노래 재생", description = "현재 " + url + "을(를) 재생하고 있습니다.", color = 0x00ff00))
     else:
         await ctx.send("노래가 이미 재생되고 있습니다!")
@@ -255,12 +276,9 @@ async def musicPlay(ctx, *, msg):
 
     if not vc.is_playing():
         global entireText
-        
-        YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+        botmessage = await ctx.send(embed = discord.Embed(title= "노래 검색 중", description = "잠시만 기다려주세요", color = 0x00ff00))
         web_options = webdriver.ChromeOptions()
         web_options.add_argument('headless')
-        
         
         chromeDriver_dir='./ChromeDriver/chromedriver_mac'
         driver = webdriver.Chrome(chromeDriver_dir,options=web_options)
@@ -272,46 +290,51 @@ async def musicPlay(ctx, *, msg):
         entireText = entireNum.text.strip()
         musicurl = entireNum.get('href')
         url = 'https://www.youtube.com'+musicurl 
-
+        
         driver.quit()
+        await botmessage.delete()
+        musicnow.insert(0,entireText)
 
         with YoutubeDL(YDL_OPTIONS) as ydl:
             info = ydl.extract_info(url, download=False)
         URL = info['formats'][0]['url']
-        await ctx.send(embed = discord.Embed(title= "노래 재생", description = "현재 " + entireText + "을(를) 재생하고 있습니다.", color = 0x00ff00))
-        vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        await ctx.send(embed = discord.Embed(title= "노래 재생", description = "현재 " + musicnow[0] + "을(를) 재생하고 있습니다.", color = 0x00ff00))
+        vc.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS), after=lambda e: play_next(ctx))
     else:
-        await ctx.send("이미 노래가 재생 중이라 노래를 재생할 수 없어요!")
+        user.append(msg)
+        result,URLTEST = title(msg)
+        song_queue.append(URLTEST)
+        await ctx.send("이미 노래가 재생중이라 "+result+"을(를) 대기열에 추가하였습니다!") 
 
-@bot.command(name='pause')
-async def musicPause(ctx):
+@bot.command(name='stop')
+async def musicStop(ctx):
     if vc.is_playing():
         vc.pause()
-        await ctx.send(embed = discord.Embed(title= "일시 정지", description = entireText + "을(를) 일시정지 했습니다.", color = 0x00ff00))
+        await ctx.send(embed = discord.Embed(title= "일시 정지", description = musicnow[0] + "을(를) 일시정지 했습니다.", color = 0x00ff00))
     else:
         await ctx.send("지금 노래가 재생되지 않네요")
 
-@bot.command(name='con')
-async def musicContinuous(ctx):
+@bot.command(name='start')
+async def musicStart(ctx):
     try:
         vc.resume()
     except:
         await ctx.send("지금 노래가 재생되지 않네요")
     else:
-        await ctx.send(embed = discord.Embed(title= "다시재생", description = entireText  + "을(를) 다시 재생했습니다.", color = 0x00ff00))
+        await ctx.send(embed = discord.Embed(title= "다시재생", description = musicnow[0]  + "을(를) 다시 재생했습니다.", color = 0x00ff00))
 
-@bot.command(name='stop')
-async def musicStop(ctx):
+@bot.command(name='skip')
+async def musicSkip(ctx):
     if vc.is_playing():
         vc.stop()
-        await ctx.send(embed = discord.Embed(title= "노래끄기", description = entireText  + "을(를) 종료했습니다.", color = 0x00ff00))
+        await ctx.send(embed = discord.Embed(title= "노래끄기", description = musicnow[0]  + "을(를) 종료했습니다.", color = 0x00ff00))
     else:
         await ctx.send("지금 노래가 재생되지 않네요.")
 
 @bot.command(name='now')
 async def playNow(ctx):
     if vc.is_playing():
-        await ctx.send(embed = discord.Embed(title= "지금노래", description = '현재' + entireText  + "을(를) 재생중입니다.", color = 0x00ff00))
+        await ctx.send(embed = discord.Embed(title= "지금노래", description = '현재' + musicnow[0]  + "을(를) 재생중입니다.", color = 0x00ff00))
     else:
         await ctx.send("지금 노래가 재생되지 않네요.")
 
@@ -323,9 +346,7 @@ async def playMelon(ctx):
         options.add_argument("headless")
 
         global entireText
-        YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist':'True'}
-        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-            
+         
         chromeDriver_dir='./ChromeDriver/chromedriver_mac'
         driver = webdriver.Chrome(chromeDriver_dir, options = options)
         driver.get("https://www.youtube.com/results?search_query=멜론차트")
@@ -352,7 +373,7 @@ async def 대기열추가(ctx, *, msg):
     user.append(msg)
     result, URLTEST = title(msg)
     song_queue.append(URLTEST)
-    await ctx.send(result + "를 재생목록에 추가했어요!")
+    await ctx.send(embed = discord.Embed(title= "대기열 추가", description = result, color = 0x00ff00))
 
 @bot.command(name='del')
 async def 대기열삭제(ctx, *, number):
