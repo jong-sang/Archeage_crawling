@@ -3,3 +3,6 @@ test.py
 channelData.json
 __pycache__
 log.txt
+.idea/
+.vscode
+.DS_Store
